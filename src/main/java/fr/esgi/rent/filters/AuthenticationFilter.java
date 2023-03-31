@@ -6,6 +6,7 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -17,6 +18,7 @@ class AuthenticationFilter implements ContainerRequestFilter {
 
     private static final List<String> VALID_USERS = Arrays.asList("user1:password1", "user2:password2", "user3:password3");
     private static final String BASIC_PREFIX = "Basic ";
+    private static final String RENT_API_OWNERS_URI = "/rent-api/api/owners";
 
     private final CustomResponse customResponse;
 
@@ -27,6 +29,12 @@ class AuthenticationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
+        URI requestUri = requestContext.getUriInfo().getRequestUri();
+
+        if (!requestUri.getPath().equals(RENT_API_OWNERS_URI)) {
+            return;
+        }
+
         String authorizationHeaderValue = requestContext.getHeaderString(AUTHORIZATION);
 
         if (authorizationHeaderValue == null || !authorizationHeaderValue.startsWith(BASIC_PREFIX)) {
